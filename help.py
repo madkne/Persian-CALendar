@@ -28,17 +28,17 @@ def PCAL_BasicHelp():
     ['-y | --year',
     '-ec| --english-convert [date]',
     '-go| --goto-date [date]',
-    '-bl| --before-later [count] [before|later]',
+    '-as| --add-subtract [count] [issubtract]',
     '-se| --set-event [date] [text]',
     '-t | --today',
     '-m | --month'],
     ['display a calendar for the current year (ext: -fa, -en)',
     'convert a english format date like \'1999.4.7\' to persian format date like \'1378.1.18\' (no ext)',
     'get a persian format date like \'1398.6.14\' and display a month calendar of that date (ext: -fa, -en, -i, -e)',
-    "get a count like '5d' or '18m' or '3y' or even '2y,10m,7d' and get a parameter 'later' or 'before' for add or subtract (no ext)",
+    "get a count like '5d' or '18m' or '3y' or even '2y,10m,7d' to add today or if subtract,get a parameter 'true' (no ext)",
     "set event as a text for a persian date like '1398.4.11' (no ext)",
     'display today date and persian-english format date (ext:-fa, -en, -e, -i)',
-    'display a calendar for the current month(ext: -fa, -en, -e) (by default)'],42)
+    'display a calendar for the current month(ext: -fa, -en, -e) (by default)'],40)
 #=============================================
 def PCAL_Version():
         print("{}(PCAL) {} ({})\nWritten by {}".format(Glob.NAME,Glob.VERSION,Glob.BUILD_PLATFORM,Glob.PROGRAMMER))   

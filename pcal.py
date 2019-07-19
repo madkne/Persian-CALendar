@@ -2,7 +2,6 @@
 from sys import argv
 import os
 import datetime
-# import jdatetime
 # ------------------------
 import _global as Glob
 import help
@@ -40,6 +39,9 @@ class PCAL():
         # =>run set event function,if exist its option
         elif Glob.options['goto'] != '':
             self.GotoDate()
+        # =>run before later function,if exist its option
+        elif Glob.options['addsubtract'] != '':
+            self.AddSubtract()
         # =>else run display current month/yaer/day
         else:
             self.current()
@@ -73,11 +75,16 @@ class PCAL():
                 Glob.options.update({'setevent': date, 'eventtext': text})
                 i += 3
                 continue
-            elif (argv[i] == '--before-later' or argv[i] == '-bl') and i+2 < largv:
+            elif (argv[i] == '--add-subtract' or argv[i] == '-as') and i+2 < largv and argv[i+2].strip() == 'true':
                 count = argv[i+1].strip()
-                typed = argv[i+2].strip()
-                Glob.options.update({'setevent': date, 'eventtext': text})
+                Glob.options.update(
+                    {'addsubtract': count, 'issubtract': 'true'})
                 i += 3
+                continue
+            elif (argv[i] == '--add-subtract' or argv[i] == '-as') and i+1 < largv:
+                count = argv[i+1].strip()
+                Glob.options.update({'addsubtract': count})
+                i += 2
                 continue
             # =>extensions
             elif (argv[i] == '--persian' or argv[i] == '-fa'):
@@ -147,6 +154,35 @@ class PCAL():
                 'bad persian date format : '+Glob.options['goto'])
         # =>print goto date
         display.PCAL_DisplayGotoDate({'y': gyear, 'm': gmonth, 'd': gday})
+    # =============================================
+
+    def AddSubtract(self):
+        # =>split addsubtract
+        sp = Glob.options['addsubtract'].split(',')
+        # =>get today datetime
+        today = datetime.datetime.today()
+        # =>get jalali date of today
+        jalalidate = convert.GregorianToJalali(
+            today.year, today.month, today.day)
+        current = jalalidate.getJalaliList()
+        # =>if add mode
+        if Glob.options['issubtract'] == 'false':
+            for i in range(0, len(sp), 1):
+                # =>detect mode of add
+                mode = sp[i][len(sp[i])-1]
+                add = int(sp[i][0:len(sp[i])-1])
+                current = common.PCAL_AddToJalaliDate(current, add, mode)
+        # =>else subtract mode
+        else:
+            for i in range(0, len(sp), 1):
+                # =>detect mode of subtract
+                mode = sp[i][len(sp[i])-1]
+                sub = int(sp[i][0:len(sp[i])-1])
+                current = common.PCAL_SubtractToJalaliDate(current, sub, mode)
+
+        # =>print result date
+        print("{}/{}/{}".format(current['y'], current['m'], current['d']))
+
     # =============================================
 
     def SetEvent(self):

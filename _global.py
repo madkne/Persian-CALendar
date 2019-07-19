@@ -1,20 +1,24 @@
 
 
-VERSION = '0.94'
+VERSION = '1.02'
+VERSION1_DATE='2019.7.19'
 NAME = 'PersianCALendar'
 START_DATE = '2019.7.16'
 BUILD_PLATFORM = '2019@Debian/Linux'
 PROGRAMMER = 'madkne'
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 # =>init global options
 options = {
-    'current': 'month',  # =>year|month|today (4 priority)
+    'current': 'month',  # =>year|month|today (5 priority)
     'convert': '',  # =>english-convert (1 priority)
     'convdate': '',  # =>english-convert (1 priority)
     'setevent': '',  # =>set-event (2 priority)
     'eventtext': '',  # =>set-event (2 priority)
     'goto':'', #=>goto-date (3 priority)
+    'addsubtract':'', #=>before-later (4 priority)
+    'issubtract':'false', #=>before-later (4 priority)
+
     'lang': 'en',  # =>persian|english
     'event': 'false',  # =>events
     'info': 'false'  # =>info
@@ -50,14 +54,14 @@ TODOs:
 - pcal -ec 2019.5.8                         [DONE]
 - pcal -go 1398.5.8 [-en|-fa]               [DONE]
 - pcal -go 1398.5.8 [-en|-fa] -i            [DONE]
-- pcal -bl 12d                              [....]
-- pcal -bl 19m true
-- pcal -bl 5y,23m,18d
-- pcal -bl 23d,18m true
-- pcal -go 1398.5.8 [-en|-fa] -i -e
-- pcal -go 1398.5.8 [-en|-fa] -e
+- pcal -as 12d                              [DONE]
+- pcal -as 19m true                         [DONE]
+- pcal -as 5y,23m,18d                       [DONE]
+- pcal -as 23d,18m true                     [DONE]
+- pcal -t [-en|-fa] -e                      [....]
 - pcal -m [-en|-fa] -e
 - pcal -t [-en|-fa] -i -e
-- pcal -t [-en|-fa] -e
+- pcal -go 1398.5.8 [-en|-fa] -i -e         
+- pcal -go 1398.5.8 [-en|-fa] -e
 - pcal -se 1398.7.22 "Hello World!"
 """

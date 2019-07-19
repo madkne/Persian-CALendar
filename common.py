@@ -1,4 +1,5 @@
 import datetime
+import _global as Glob
 # -----------------------------------------
 numbers = {
     'fa': ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '۱۰']
@@ -76,44 +77,44 @@ def PCAL_CalculateInterval(startdt, enddt):
     """
     # =>init vars
     sign = True
-    months=0
+    months = 0
     # =>get start date and end date from datetime to get their timestamps
     stdt = datetime.datetime(startdt['y'], startdt['m'], startdt['d'])
     endt = datetime.datetime(enddt['y'], enddt['m'], enddt['d'])
     # =>get timestamps
     stimestamp = stdt.timestamp()
     etimestamp = endt.timestamp()
-    #=>calc interval by end date timestamp and start date timestamp
+    # =>calc interval by end date timestamp and start date timestamp
     interval = (etimestamp-stimestamp)
-    #=>if interval is negative, then False sign and positive interval
+    # =>if interval is negative, then False sign and positive interval
     if interval < 0:
         sign = False
         interval *= -1
-    #=>calc total days from interval divides
+    # =>calc total days from interval divides
     days = int(interval/60/60/24)
-    #=>define current month and year to set by start date
+    # =>define current month and year to set by start date
     curyear = startdt['y']
     curmonth = startdt['m']
-    #=>loop for subtract from days and and to months
+    # =>loop for subtract from days and and to months
     while True:
-        #=>calc count days of current month
+        # =>calc count days of current month
         d = PCAL_ReturnDaysFromJalaliMonth(curmonth, curyear)
-        #=>stop condition! if count days of month is bigger than total days
+        # =>stop condition! if count days of month is bigger than total days
         if d > days:
             break
-        #=>add one to months and subtract 'd' from days
+        # =>add one to months and subtract 'd' from days
         months += 1
         days -= d
-        #=>reassign(update) curyear,curmonth by add one month to current date(start date)
+        # =>reassign(update) curyear,curmonth by add one month to current date(start date)
         curdate = {'y': curyear, 'm': curmonth}
         curdate = PCAL_AddToJalaliDate(curdate, 1, 'm')
         curyear = curdate['y']
         curmonth = curdate['m']
     # print('tmp:', months, days)
-    #=>calc years by months, recalc months
+    # =>calc years by months, recalc months
     years = int(months/12)
     months = months % 12
-    #=>return interval as a date with sign of date
+    # =>return interval as a date with sign of date
     return {'y': years, 'm': months, 'd': days, 'sign': sign}
 # =============================================
 
@@ -124,9 +125,40 @@ def PCAL_AddToJalaliDate(current, add=1, mode='d'):
     add:65
     mode:'d'|'m'|'y'
     """
-    # =>if add mode is day TODO:
+    if Glob.DEBUG_MODE:
+        print(current, add, mode)
+    # =>if add mode is day
     if mode == 'd':
-        mode = 'd'
+        # =>divide days to 28 (less than 1 month)
+        daysdivide = int(add/28)
+        if daysdivide < add/28:
+            daysdivide += 1
+        #=>iterate by daysdivide, and ‍every time just add 28 days or less!
+        for i in range(0,daysdivide,1):
+            #=>calc tmp add, if bigger than 28, set 28, else tmpadd
+            tmpadd=add-(i*28)
+            if tmpadd>28:tmpadd=28
+            #=>add to current day,tmpadd!
+            current['d'] += tmpadd
+            # =>check is bigger than 29,30,31 days
+            maxdays = PCAL_ReturnDaysFromJalaliMonth(current['m'], current['y'])
+            if current['d'] > maxdays:
+                # =>get different and add one to month
+                diff = current['d']-maxdays
+                current['m'] += 1
+                # =>calc year and month by diff
+                current['m'] += int(diff/maxdays)
+                current['d'] = diff % maxdays
+                # print(diff, maxdays)
+                # =>check is bigger than 12 months
+                if current['m'] > 12:
+                    # =>get different and add one to year
+                    diff = current['m']-12
+                    current['y'] += 1
+                    # =>calc year and month by diff
+                    current['y'] += int(diff/12)
+                    current['m'] = diff % 12
+
     # =>else if add mode is month
     elif mode == 'm':
         current['m'] += add
@@ -139,13 +171,74 @@ def PCAL_AddToJalaliDate(current, add=1, mode='d'):
             current['y'] += int(diff/12)
             current['m'] = diff % 12
 
-    # =>else add mode is year TODO:
+    # =>else add mode is year
+    elif mode == 'y':
+        current['y'] += add
 
     # =>return changed current object
     return current
 
 # =============================================
+def PCAL_SubtractToJalaliDate(current, subtract=1, mode='d'):
+    """
+    current:{'y','m','d'}
+    add:65
+    mode:'d'|'m'|'y'
+    """
+    if Glob.DEBUG_MODE:
+        print('subtract',current, subtract, mode)
+    # =>if subtract mode is day
+    if mode == 'd':
+        # =>divide days to 28 (less than 1 month)
+        daysdivide = int(subtract/28)
+        if daysdivide < subtract/28:
+            daysdivide += 1
+        #=>iterate by daysdivide, and ‍every time just subtract 28 days or less!
+        for i in range(0,daysdivide,1):
+            #=>calc tmp add, if bigger than 28, set 28, else tmpadd
+            tmpadd=subtract-(i*28)
+            if tmpadd>28:tmpadd=28
+            #=>subtract to current day,tmpadd!
+            current['d'] -= tmpadd#FIXME:
+            # =>check is bigger than 29,30,31 days
+            if current['m']-1>0:
+                maxdays = PCAL_ReturnDaysFromJalaliMonth(current['m']-1, current['y'])
+            else:
+                maxdays = PCAL_ReturnDaysFromJalaliMonth(12, current['y']-1)
+            if current['d'] <1:
+                # =>get different and subtract one to month
+                diff = maxdays+current['d']
+                current['m'] -= 1
+                current['d'] = diff
+                # print(diff, maxdays)
+                # =>check is less than 1 month
+                if current['m'] <1:
+                    # =>get different and subtract one from year
+                    diff = current['m']+12
+                    current['y'] -= 1
+                    # =>calc year and month by diff
+                    current['y'] -= int(diff/12)
+                    current['m'] = diff % 12
 
+    # =>else if subtract mode is month
+    elif mode == 'm':
+        current['m'] -= subtract
+        # =>if was less than 1 month
+        if current['m'] <1:
+            # =>get different and subtract one from year
+            diff = current['m']+12
+            current['y'] -= 1
+            # =>calc year and month by diff
+            current['y'] -= int(diff/12)
+            current['m'] = diff % 12
+
+    # =>else subtract mode is year
+    elif mode == 'y':
+        current['y'] -= subtract
+
+    # =>return changed current object
+    return current
+# =============================================
 
 def PCAL_ReturnDaysFromJalaliMonth(month, year):
     # =>count days for 6 first months
