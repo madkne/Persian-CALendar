@@ -2,6 +2,7 @@
 from sys import argv
 import os
 import datetime
+import json
 # ------------------------
 import _global as Glob
 import help
@@ -188,7 +189,50 @@ class PCAL():
     def SetEvent(self):
         if Glob.DEBUG_MODE:
             print('set-event')
-        # TODO:
+        # =>init vars
+        gyear = 0
+        gmonth = 0
+        gday = 0
+        filename=''
+        filepath=''
+        # =>split date
+        date = Glob.options['setevent'].split('.')
+        gyear = int(date[0])
+        gmonth = int(date[1])
+        gday = int(date[2])
+        # =>validate persian date
+        if not common.PCAL_ValidateJalaliDate(gyear, gmonth, gday):
+            display.PCAL_RaiseError(
+                'bad persian date format : '+Glob.options['setevent'])
+        #=>set filename and filepath
+        filename=str(gyear)[2:]+"_personal.json"
+        filepath=os.path.join('./events',filename)
+        #=>create [year]_personal.json file, if not exist!
+        if not os.path.exists(filepath):
+            #=>create new json object for new [year]_personal.json file
+            newjsonfile={"meta":{
+                "type":"personal",
+                "author":'PCAL-V'+Glob.VERSION,
+                "endyear":str(gyear+1),
+                "startyear":str(gyear)
+            }}
+            f=open(filepath,'w',encoding='utf8')
+            f.write(json.dumps(newjsonfile))
+            f.close()
+        #=>open [year]_personal.json file and load its json
+        jsonc = ''
+        # =>load json in events var from [year]_personal.json file
+        events = json.load(open(filepath, 'r', encoding='utf8'))
+        #=>append new event to new date
+        events.update({str(gmonth):{str(gday):Glob.options['eventtext']}})
+        #=>rewrite new events in [year]_personal.json file
+        f=open(filepath,'w',encoding='utf8')
+        f.write(json.dumps(events,ensure_ascii=False))
+        f.close()
+        #=>print all events of setevent date
+        display.PCAL_DisplayEventsList({'y':gyear,'m':gmonth,'d':gday},display.en,mode='month')
+
+        
     # =============================================
 
     def current(self):

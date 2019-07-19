@@ -1,13 +1,13 @@
 
 
-VERSION = '1.02'
+VERSION = '1.23'
 VERSION1_DATE='2019.7.19'
 NAME = 'PersianCALendar'
 START_DATE = '2019.7.16'
-BUILD_PLATFORM = '2019@Debian/Linux'
+BUILD_PLATFORMS = ['2019@Debian/Linux']
 PROGRAMMER = 'madkne'
-DEBUG_MODE = True
-
+DEBUG_MODE = False
+#----------------------------------------------
 # =>init global options
 options = {
     'current': 'month',  # =>year|month|today (5 priority)
@@ -23,8 +23,7 @@ options = {
     'event': 'false',  # =>events
     'info': 'false'  # =>info
 }
-
-
+#----------------------------------------------
 class TerminalColors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -43,8 +42,11 @@ class TerminalColors:
     BLACKWHITE = '\033[0;30;47m'
     CYANBOLD = '\033[1;36;40m'
     WHITEBLUE = '\033[0;37;44m'
-
-
+#----------------------------------------------
+PERSONAL_EVENT_COLOR=TerminalColors.YELLOWBOLD
+HOLIDAY_EVENT_COLOR=TerminalColors.REDBOLD
+OCCASION_EVENT_COLOR=TerminalColors.GREENBOLD
+#----------------------------------------------
 """
 TODOs:
 - pcal -t [-en|-fa] -i                      [DONE]
@@ -58,10 +60,10 @@ TODOs:
 - pcal -as 19m true                         [DONE]
 - pcal -as 5y,23m,18d                       [DONE]
 - pcal -as 23d,18m true                     [DONE]
-- pcal -t [-en|-fa] -e                      [....]
-- pcal -m [-en|-fa] -e
-- pcal -t [-en|-fa] -i -e
-- pcal -go 1398.5.8 [-en|-fa] -i -e         
-- pcal -go 1398.5.8 [-en|-fa] -e
-- pcal -se 1398.7.22 "Hello World!"
+- pcal -t [-en|-fa] -e                      [DONE]
+- pcal -m [-en|-fa] -e                      [DONE]
+- pcal -t [-en|-fa] -i -e                   [DONE]
+- pcal -go 1398.5.8 [-en|-fa] -i -e         [DONE]         
+- pcal -go 1398.5.8 [-en|-fa] -e            [DONE]
+- pcal -se 1398.7.22 "Hello World!"         [....]
 """

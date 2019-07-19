@@ -1,5 +1,7 @@
 import datetime
 import _global as Glob
+import os
+import json
 # -----------------------------------------
 numbers = {
     'fa': ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹', '۱۰']
@@ -133,15 +135,17 @@ def PCAL_AddToJalaliDate(current, add=1, mode='d'):
         daysdivide = int(add/28)
         if daysdivide < add/28:
             daysdivide += 1
-        #=>iterate by daysdivide, and ‍every time just add 28 days or less!
-        for i in range(0,daysdivide,1):
-            #=>calc tmp add, if bigger than 28, set 28, else tmpadd
-            tmpadd=add-(i*28)
-            if tmpadd>28:tmpadd=28
-            #=>add to current day,tmpadd!
+        # =>iterate by daysdivide, and ‍every time just add 28 days or less!
+        for i in range(0, daysdivide, 1):
+            # =>calc tmp add, if bigger than 28, set 28, else tmpadd
+            tmpadd = add-(i*28)
+            if tmpadd > 28:
+                tmpadd = 28
+            # =>add to current day,tmpadd!
             current['d'] += tmpadd
             # =>check is bigger than 29,30,31 days
-            maxdays = PCAL_ReturnDaysFromJalaliMonth(current['m'], current['y'])
+            maxdays = PCAL_ReturnDaysFromJalaliMonth(
+                current['m'], current['y'])
             if current['d'] > maxdays:
                 # =>get different and add one to month
                 diff = current['d']-maxdays
@@ -179,6 +183,8 @@ def PCAL_AddToJalaliDate(current, add=1, mode='d'):
     return current
 
 # =============================================
+
+
 def PCAL_SubtractToJalaliDate(current, subtract=1, mode='d'):
     """
     current:{'y','m','d'}
@@ -186,33 +192,35 @@ def PCAL_SubtractToJalaliDate(current, subtract=1, mode='d'):
     mode:'d'|'m'|'y'
     """
     if Glob.DEBUG_MODE:
-        print('subtract',current, subtract, mode)
+        print('subtract', current, subtract, mode)
     # =>if subtract mode is day
     if mode == 'd':
         # =>divide days to 28 (less than 1 month)
         daysdivide = int(subtract/28)
         if daysdivide < subtract/28:
             daysdivide += 1
-        #=>iterate by daysdivide, and ‍every time just subtract 28 days or less!
-        for i in range(0,daysdivide,1):
-            #=>calc tmp add, if bigger than 28, set 28, else tmpadd
-            tmpadd=subtract-(i*28)
-            if tmpadd>28:tmpadd=28
-            #=>subtract to current day,tmpadd!
-            current['d'] -= tmpadd#FIXME:
+        # =>iterate by daysdivide, and ‍every time just subtract 28 days or less!
+        for i in range(0, daysdivide, 1):
+            # =>calc tmp add, if bigger than 28, set 28, else tmpadd
+            tmpadd = subtract-(i*28)
+            if tmpadd > 28:
+                tmpadd = 28
+            # =>subtract to current day,tmpadd!
+            current['d'] -= tmpadd  # FIXME:
             # =>check is bigger than 29,30,31 days
-            if current['m']-1>0:
-                maxdays = PCAL_ReturnDaysFromJalaliMonth(current['m']-1, current['y'])
+            if current['m']-1 > 0:
+                maxdays = PCAL_ReturnDaysFromJalaliMonth(
+                    current['m']-1, current['y'])
             else:
                 maxdays = PCAL_ReturnDaysFromJalaliMonth(12, current['y']-1)
-            if current['d'] <1:
+            if current['d'] < 1:
                 # =>get different and subtract one to month
                 diff = maxdays+current['d']
                 current['m'] -= 1
                 current['d'] = diff
                 # print(diff, maxdays)
                 # =>check is less than 1 month
-                if current['m'] <1:
+                if current['m'] < 1:
                     # =>get different and subtract one from year
                     diff = current['m']+12
                     current['y'] -= 1
@@ -224,7 +232,7 @@ def PCAL_SubtractToJalaliDate(current, subtract=1, mode='d'):
     elif mode == 'm':
         current['m'] -= subtract
         # =>if was less than 1 month
-        if current['m'] <1:
+        if current['m'] < 1:
             # =>get different and subtract one from year
             diff = current['m']+12
             current['y'] -= 1
@@ -239,6 +247,7 @@ def PCAL_SubtractToJalaliDate(current, subtract=1, mode='d'):
     # =>return changed current object
     return current
 # =============================================
+
 
 def PCAL_ReturnDaysFromJalaliMonth(month, year):
     # =>count days for 6 first months
@@ -278,3 +287,48 @@ def PCAL_CalculateHumanlyInterval(date, lang, sign):
         final += ' '+lang['dictionary']['ago']
     # =>return final string
     return final
+
+# =============================================
+
+
+def PCAL_ReturnEventsFromJalaliDay(year, month, day, returnjusttype=False):
+    # =>init vars
+    eventslist = []
+    maintype = 'normal'  # 1)personal 2)holiday 3)occasion
+    # =>get list of event files in events dir
+    listfiles = os.listdir('./events')
+    if Glob.DEBUG_MODE:
+        print('list event files:', listfiles)
+    # =>iterate event files, search for current date
+    for evfile in listfiles:
+        jsonc = ''
+        # =>open and read all lines of json file
+        with open(os.path.join('./events', evfile), 'r', encoding='utf8') as content_file:
+            jsonc = content_file.read()
+        # =>load json in events var
+        events = json.loads(jsonc)
+        # =>check metadata for startyear and endyear
+        metadata = events['meta']
+        if int(metadata['startyear']) > year or int(metadata['endyear']) <= year:
+            continue
+        # =>check for exist month and day
+        if str(month) in events and str(day) in events[str(month)]:
+            eventtext = events[str(month)][str(day)]
+            eventtype = metadata['type']
+            # =>if return just type is true
+            if returnjusttype:
+                if eventtype == 'personal':
+                    maintype = eventtype
+                elif eventtype == 'holiday' and maintype !='personal':
+                    maintype = eventtype
+                elif eventtype == 'occasion' and maintype == 'normal':
+                    maintype = eventtype
+            else:
+                eventslist.append(
+                    {'name': evfile, 'type': eventtype, 'author': metadata['author'], 'month': month, 'day': day, 'text': eventtext})
+
+    # =>return events list,if returnjusttype is false(by default)
+    if not returnjusttype:
+        return eventslist
+    else:
+        return maintype
