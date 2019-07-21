@@ -206,7 +206,7 @@ class PCAL():
                 'bad persian date format : '+Glob.options['setevent'])
         #=>set filename and filepath
         filename=str(gyear)[2:]+"_personal.json"
-        filepath=os.path.join('./events',filename)
+        filepath=os.path.join(common.PCAL_ReturnCorrectPath('events'),filename)
         #=>create [year]_personal.json file, if not exist!
         if not os.path.exists(filepath):
             #=>create new json object for new [year]_personal.json file

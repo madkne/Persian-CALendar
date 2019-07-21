@@ -19,4 +19,8 @@
 
 - display extra information like weekday, interval, long date format, is leap year and english date format
 
+- set custom event for any date
+
+- add iranian official holidays and 1398 holidays to events
+
 ~ Programmer and Designer: madkne

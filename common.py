@@ -289,21 +289,22 @@ def PCAL_CalculateHumanlyInterval(date, lang, sign):
     return final
 
 # =============================================
-
-
+def PCAL_ReturnCorrectPath(relpath):
+    return os.path.join(os.path.dirname(__file__),relpath)
+# =============================================
 def PCAL_ReturnEventsFromJalaliDay(year, month, day, returnjusttype=False):
     # =>init vars
     eventslist = []
     maintype = 'normal'  # 1)personal 2)holiday 3)occasion
     # =>get list of event files in events dir
-    listfiles = os.listdir('./events')
+    listfiles = os.listdir(PCAL_ReturnCorrectPath('events'))
     if Glob.DEBUG_MODE:
         print('list event files:', listfiles)
     # =>iterate event files, search for current date
     for evfile in listfiles:
         jsonc = ''
         # =>open and read all lines of json file
-        with open(os.path.join('./events', evfile), 'r', encoding='utf8') as content_file:
+        with open(os.path.join(PCAL_ReturnCorrectPath('events'), evfile), 'r', encoding='utf8') as content_file:
             jsonc = content_file.read()
         # =>load json in events var
         events = json.loads(jsonc)

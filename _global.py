@@ -1,10 +1,10 @@
 
 
-VERSION = '1.23'
+VERSION = '1.24'
 VERSION1_DATE='2019.7.19'
 NAME = 'PersianCALendar'
 START_DATE = '2019.7.16'
-BUILD_PLATFORMS = ['2019@Debian/Linux']
+BUILD_PLATFORMS = ['Debian9/Linux']
 PROGRAMMER = 'madkne'
 DEBUG_MODE = False
 #----------------------------------------------
